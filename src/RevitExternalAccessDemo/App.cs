@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.ServiceModel;
 using System.ServiceModel.Description;
+using System.Threading.Tasks;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -27,34 +28,25 @@ namespace RevitExternalAccessDemo
 {
     class App : IExternalApplication
     {
-        private const string serviceUrl =
-            "net.pipe://localhost/";
-
-
-        private ServiceHost serviceHost;
-
+        private const string ServiceUrlHttp = "http://localhost:9001/RevitExternalService";
+        private const string ServiceUrlTcp = "net.tcp://localhost:9002/RevitExternalService";
+        
         public Result OnStartup(UIControlledApplication a)
         {
             a.Idling += OnIdling;
-
-            Uri uri = new Uri(serviceUrl);
-
-            serviceHost = 
-                new ServiceHost(typeof(RevitExternalService), uri);
-
-
+            
             try
             {
-                serviceHost.AddServiceEndpoint(typeof (IRevitExternalService),
-                                               new NetNamedPipeBinding(), 
-                                               "RevitExternalService");
+                Task.Factory.StartNew(() =>
+                    {
+                        var serviceHost = new ServiceHost(typeof(RevitExternalService), new Uri(ServiceUrlHttp), new Uri(ServiceUrlTcp));
 
-                //ServiceMetadataBehavior smb =
-                //    new ServiceMetadataBehavior();
-                //smb.HttpGetEnabled = true;
-                //serviceHost.Description.Behaviors.Add(smb);
-
-                serviceHost.Open();
+                        serviceHost.Description.Behaviors.Add(new ServiceMetadataBehavior());
+                        serviceHost.AddServiceEndpoint(typeof(IRevitExternalService), new BasicHttpBinding(), ServiceUrlHttp);
+                        serviceHost.AddServiceEndpoint(typeof(IRevitExternalService), new NetTcpBinding(), ServiceUrlTcp);
+                        serviceHost.AddServiceEndpoint(typeof(IMetadataExchange), MetadataExchangeBindings.CreateMexHttpBinding(), "mex");
+                        serviceHost.Open();
+                    }, TaskCreationOptions.LongRunning);
             }
             catch (Exception ex)
             {                
@@ -106,12 +98,7 @@ namespace RevitExternalAccessDemo
         public Result OnShutdown(UIControlledApplication a)
         {
             a.Idling -= OnIdling;
-
-            if (serviceHost != null)
-            {
-                serviceHost.Close();
-            }
-
+            
             return Result.Succeeded;
         }
     }
