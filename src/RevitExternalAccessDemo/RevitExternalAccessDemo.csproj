@@ -112,10 +112,5 @@
   <Target Name="AfterClean">
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>copy "$(ProjectDir)RevitExternalAccessDemo.addin" "$(AppData)\Autodesk\REVIT\Addins\2014"
-copy "$(TargetPath)" "$(AppData)\Autodesk\REVIT\Addins\2014"
-
-copy "$(ProjectDir)RevitExternalAccessDemo.addin" "$(AppData)\Autodesk\REVIT\Addins\2012"
-copy "$(TargetPath)" "$(AppData)\Autodesk\REVIT\Addins\2012"</PostBuildEvent>
   </PropertyGroup>
 </Project>
