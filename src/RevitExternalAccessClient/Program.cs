@@ -25,8 +25,7 @@ namespace RevitExternalAccessClient
             IRevitExternalService service;
             try
             {
-                var channelFactory =
-                new ChannelFactory<IRevitExternalService>("IRevitExternalService");
+                var channelFactory = new ChannelFactory<IRevitExternalService>("IRevitExternalService");
 
                 service = channelFactory.CreateChannel();
             }
