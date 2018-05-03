@@ -80,7 +80,7 @@ namespace RevitExternalAccessDemo
                             {
                                 t.Start();
 
-                                Curve curve = Line.get_Bound(
+                                Curve curve = Line.CreateBound(
                                     new Autodesk.Revit.DB.XYZ(startPoint.X, startPoint.Y, startPoint.Z),
                                     new Autodesk.Revit.DB.XYZ(endPoint.X, endPoint.Y, endPoint.Z));
                                 FilteredElementCollector collector = new FilteredElementCollector(doc);
