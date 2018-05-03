@@ -17,47 +17,47 @@ namespace RevitExternalAccessDemo
     public class TaskContainer
     {
         private static readonly object LockObj = new object();
-        private volatile static TaskContainer _instance;
+        private volatile static TaskContainer instance;
 
-        private readonly Queue<Action<UIApplication>> _tasks;
+        private readonly Queue<Action<UIApplication>> tasks;
 
         private TaskContainer()
         {
-            _tasks = new Queue<Action<UIApplication>>();
+            tasks = new Queue<Action<UIApplication>>();
         }
 
         public static TaskContainer Instance
         {
             get
             {
-                if (_instance == null)
+                if (instance == null)
                 {
                     lock (LockObj)
                     {
-                        if (_instance == null)
+                        if (instance == null)
                         {
-                            _instance = new TaskContainer();
+                            instance = new TaskContainer();
                         }
                     }
                 }
 
-                return _instance;
+                return instance;
             }
         }
 
         public void EnqueueTask(Action<UIApplication> task)
         {
-            _tasks.Enqueue(task);
+            tasks.Enqueue(task);
         }
 
         public bool HasTaskToPerform
         {
-            get { return _tasks.Count > 0; }
+            get { return tasks.Count > 0; }
         }
 
         public Action<UIApplication> DequeueTask()
         {
-            return _tasks.Dequeue();
+            return tasks.Dequeue();
         }
     }
 }

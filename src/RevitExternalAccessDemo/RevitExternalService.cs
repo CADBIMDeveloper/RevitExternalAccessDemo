@@ -22,23 +22,20 @@ namespace RevitExternalAccessDemo
     {
         private string currentDocumentPath;
 
-        private static readonly object _locker =
-            new object();
+        private static readonly object Locker = new object();
 
-        private const int WAIT_TIMEOUT = 10000; // 10 seconds timeout
-
-        #region Implementation of IRevitExternalService
+        private const int WaitTimeout = 10000; // 10 seconds timeout
 
         public string GetCurrentDocumentPath()
         {
             Debug.Print("{0}: {1}", Resources.PushTaskToTheContainer, DateTime.Now.ToString("HH:mm:ss.fff"));
 
-            lock (_locker)
+            lock (Locker)
             {
                 TaskContainer.Instance.EnqueueTask(GetDocumentPath);
 
                 // Wait when the task is completed
-                Monitor.Wait(_locker, WAIT_TIMEOUT);
+                Monitor.Wait(Locker, WaitTimeout);
             }
 
             Debug.Print("{0}: {1}", Resources.FinishTask, DateTime.Now.ToString("HH:mm:ss.fff"));
@@ -55,9 +52,9 @@ namespace RevitExternalAccessDemo
             // to ensure to unlock locker object.
             finally
             {
-                lock (_locker)
+                lock (Locker)
                 {
-                    Monitor.Pulse(_locker);
+                    Monitor.Pulse(Locker);
                 }
             }
         }
@@ -67,7 +64,7 @@ namespace RevitExternalAccessDemo
 
             Wall wall = null;
 
-            lock (_locker)
+            lock (Locker)
             {
 
                 TaskContainer.Instance.EnqueueTask(uiapp =>
@@ -76,26 +73,22 @@ namespace RevitExternalAccessDemo
                         {
                             var doc = uiapp.ActiveUIDocument.Document;
 
-                            using (Transaction t = new Transaction(doc, Resources.CreateWall))
+                            using (var t = new Transaction(doc, Resources.CreateWall))
                             {
                                 t.Start();
 
                                 Curve curve = Line.CreateBound(
                                     new Autodesk.Revit.DB.XYZ(startPoint.X, startPoint.Y, startPoint.Z),
                                     new Autodesk.Revit.DB.XYZ(endPoint.X, endPoint.Y, endPoint.Z));
-                                FilteredElementCollector collector = new FilteredElementCollector(doc);
-                                var level =
-                                    collector
-                                        .OfClass(typeof(Level))
-                                        .ToElements()
-                                        .OfType<Level>()
-                                        .FirstOrDefault();
+                                var collector = new FilteredElementCollector(doc);
 
-                                #if REVIT2012
-                                wall = doc.Create.NewWall(curve, level, false);
-                                #else
+                                var level = collector
+                                    .OfClass(typeof (Level))
+                                    .ToElements()
+                                    .OfType<Level>()
+                                    .First();
+
                                 wall = Wall.Create(doc, curve, level.Id, true);
-                                #endif
 
                                 t.Commit();
                             }
@@ -103,19 +96,17 @@ namespace RevitExternalAccessDemo
                         finally
                         {
 
-                            lock (_locker)
+                            lock (Locker)
                             {
-                                Monitor.Pulse(_locker);
+                                Monitor.Pulse(Locker);
                             }
                         }
 
                     });
 
-                Monitor.Wait(_locker);
+                Monitor.Wait(Locker);
             }
             return wall != null;
         }
-
-        #endregion
     }
 }

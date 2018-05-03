@@ -8,21 +8,14 @@
  * 
  */
 
-#region Namespaces
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading.Tasks;
-using Autodesk.Revit.ApplicationServices;
-using Autodesk.Revit.Attributes;
-using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
 using RevitExternalAccessDemo.Properties;
-
-#endregion
 
 namespace RevitExternalAccessDemo
 {
@@ -51,9 +44,7 @@ namespace RevitExternalAccessDemo
             catch (Exception ex)
             {                
                 a.ControlledApplication
-                    .WriteJournalComment(string.Format("{0}.\r\n{1}",  
-                        Resources.CouldNotStartWCFService,
-                        ex.ToString()),
+                    .WriteJournalComment($"{Resources.CouldNotStartWCFService}.\r\n{ex}",
                     true);
                 
             }
@@ -61,9 +52,9 @@ namespace RevitExternalAccessDemo
             return Result.Succeeded;
         }
 
-        private void OnIdling(object sender, IdlingEventArgs e)
+        private static void OnIdling(object sender, IdlingEventArgs e)
         {
-            var uiApp = sender as UIApplication;
+            var uiApp = (UIApplication)sender;
 
             Debug.Print("OnIdling: {0}", DateTime.Now.ToString("HH:mm:ss.fff"));
 
@@ -85,14 +76,10 @@ namespace RevitExternalAccessDemo
             catch (Exception ex)
             {
                 uiApp.Application.WriteJournalComment(
-                    string.Format("RevitExternalService. {0}:\r\n{2}",
-                    Resources.AnErrorOccuredWhileExecutingTheOnIdlingEvent,
-                    ex.ToString()), true);
+                    $"RevitExternalService. {Resources.AnErrorOccuredWhileExecutingTheOnIdlingEvent}:\r\n{ex}", true);
 
                 Debug.WriteLine(ex);
             }
-
-            //e.SetRaiseWithoutDelay();
         }
 
         public Result OnShutdown(UIControlledApplication a)

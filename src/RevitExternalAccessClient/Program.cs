@@ -17,19 +17,15 @@ namespace RevitExternalAccessClient
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            ConsoleKeyInfo keyInfo;
-
-            ConsoleKey command;
-
             Console.WriteLine(Resources.PressAnyKeyWhenRevitHasStarted);
             Console.ReadKey();
 
             IRevitExternalService service;
             try
             {
-                System.ServiceModel.ChannelFactory<IRevitExternalService> channelFactory =
+                var channelFactory =
                 new ChannelFactory<IRevitExternalService>("IRevitExternalService");
 
                 service = channelFactory.CreateChannel();
@@ -50,7 +46,7 @@ namespace RevitExternalAccessClient
                 var key = Console.ReadKey();
                 Console.WriteLine();
 
-                command = key.Key;
+                var command = key.Key;
 
                 try
                 {                    
@@ -233,7 +229,7 @@ namespace RevitExternalAccessClient
 
         private static void CreateWallAndWriteResult(XYZ point1, XYZ point2, IRevitExternalService service)
         {
-            bool res = service.CreateWall(point1, point2);
+            var res = service.CreateWall(point1, point2);
             Console.WriteLine("{0}: {1}", Resources.CreateWallResult, res);
         }
     }
