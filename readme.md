@@ -4,7 +4,7 @@ This code shows, how to deploy WCF-service in Autodesk Revit and call it from ex
 
 This code initially was written by Victor Checkalin for [Revit 2013](https://github.com/chekalin-v/RevitExternalAccessDemo)
 
-However it did not work in Revit 2019. There is a discusstion in [adn-cis](http://adn-cis.org/forum/index.php?topic=745.new;topicseen#new) forum. 
+However it don't work in Revit 2019. There is a discusstion in [adn-cis](http://adn-cis.org/forum/index.php?topic=745.new;topicseen#new) forum. 
 
 The latest changes make it to work again.
 
